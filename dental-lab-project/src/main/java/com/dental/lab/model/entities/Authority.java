@@ -35,6 +35,15 @@ public class Authority {
 	@ManyToMany(mappedBy = "authorities")
 	Set<User> users;
 
+	public Authority() {
+		super();
+	}
+
+	public Authority(EAuthority authority) {
+		super();
+		this.authority = authority;
+	}
+
 	public EAuthority getAuthority() {
 		return authority;
 	}

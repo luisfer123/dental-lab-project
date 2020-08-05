@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dataset>
+
+	<Users
+		username="testUser1"
+		password="password"
+		email="testUser1@somemail.com"
+		first_name="user 1" />
+	
+</dataset>
