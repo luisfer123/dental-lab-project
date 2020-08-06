@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dental.lab.model.entities.Authority;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
+import com.dental.lab.model.payloads.RegisterUserPayload;
 import com.dental.lab.repositories.AuthorityRepository;
 import com.dental.lab.repositories.UserRepository;
 import com.dental.lab.security.CustomUserDetails;
@@ -99,6 +100,15 @@ public class UserServiceImpl implements UserService {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		
 		return savedUser;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional
+	public User registerUserPayload(RegisterUserPayload userPayload) {
+		User newUser = userPayload.buildUser();
+		return registerUser(newUser);
 	}
 	
 	@Override

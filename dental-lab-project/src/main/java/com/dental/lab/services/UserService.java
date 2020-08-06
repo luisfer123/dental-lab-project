@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.dental.lab.model.entities.Authority;
 import com.dental.lab.model.entities.User;
+import com.dental.lab.model.payloads.RegisterUserPayload;
 
 public interface UserService {
 
@@ -61,6 +62,16 @@ public interface UserService {
 	 * 			field equals to {@code ROLE_USER} is not found.
 	 */
 	User registerUser(User newUser) throws EntityNotFoundException;
+	
+	/**
+	 * Calls {@linkplain UserService#registerUser(User user)} method with an {@linkplain User} 
+	 * instance build from the {@code userPayload} passed as parameter.
+	 * 
+	 * @param userPayload The {@linkplain RegisterUserPayload} object used to build the {@linkplain User} 
+	 * 			entity that is going to be saved.
+	 * @return
+	 */
+	User registerUserPayload(RegisterUserPayload userPayload);
 	
 	boolean existsByUsername(String username);
 	

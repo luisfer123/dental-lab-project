@@ -6,31 +6,32 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dental.lab.config.WebSecurityConfig;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
+import com.dental.lab.model.payloads.RegisterUserPayload;
 import com.dental.lab.security.CustomUserDetails;
 
 @Transactional
 @ExtendWith(value = { SpringExtension.class })
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Import(WebSecurityConfig.class)
 public class UserServiceIntegrationTest {
 	
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private TestEntityManager entityManager;
 	
 	@Autowired
 	private PasswordEncoder encoder;
@@ -49,11 +50,10 @@ public class UserServiceIntegrationTest {
 	
 	@Test
 	public void findByUsernameTest() {
-		entityManager.persist(testUser1);
 		
-		User user = userService.findByUsername(usernameTestUser1);
+		User user = userService.findByUsername("admin");
 		assertNotNull(user);
-		assertEquals(usernameTestUser1, user.getUsername());
+		assertEquals("admin", user.getUsername());
 	}
 	
 	@Test
@@ -108,6 +108,50 @@ public class UserServiceIntegrationTest {
 				.getContext().getAuthentication().isAuthenticated());
 		assertEquals(usernameTestUser1, ((CustomUserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal()).getUsername());
+	}
+	
+	
+	
+	@Nested
+	@Transactional
+	@ExtendWith(value = { SpringExtension.class })
+	@SpringBootTest(webEnvironment = WebEnvironment.NONE)
+	@Import(WebSecurityConfig.class)
+	class ResgisterUserWithPayloadModelAttribute {
+		
+		private static final String testPayloadUsername = "testPayloadUser1";
+		private static final String testPayloadEmail = "testPayloadUser@email.com";
+		private static final String testPayloadRawPassword = "password";
+		
+		RegisterUserPayload testPayloadUser;
+		
+		@BeforeEach
+		public void setUp() {
+			testPayloadUser = new RegisterUserPayload();
+			testPayloadUser.setUsername(testPayloadUsername);
+			testPayloadUser.setEmail(testPayloadEmail);
+			testPayloadUser.setPassword(testPayloadRawPassword);
+			testPayloadUser.setConfirmPassword(testPayloadRawPassword);
+		}
+		
+		@Test
+		public void registerUserPayloadTest() {
+			
+			User userRegistered = 
+					userService.registerUserPayload(testPayloadUser);
+			
+			assertNotNull(userRegistered.getId());
+			assertEquals(testPayloadUsername, userRegistered.getUsername());
+			assertTrue(encoder.matches("password", userRegistered.getPassword()));
+			assertThat(userRegistered.getAuthorities())
+				.extracting("authority")
+				.containsOnly(EAuthority.ROLE_USER);
+			assertTrue(SecurityContextHolder
+					.getContext().getAuthentication().isAuthenticated());
+			assertEquals(testPayloadUsername, ((CustomUserDetails) SecurityContextHolder
+					.getContext().getAuthentication().getPrincipal()).getUsername());
+		}
+		
 	}
 
 }

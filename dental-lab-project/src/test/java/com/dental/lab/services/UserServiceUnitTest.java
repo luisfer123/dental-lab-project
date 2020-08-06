@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.dental.lab.model.entities.User;
 import com.dental.lab.repositories.UserRepository;
+import com.dental.lab.services.impl.UserServiceImpl;
 
 @ExtendWith(value = { SpringExtension.class })
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
@@ -53,7 +54,7 @@ public class UserServiceUnitTest {
 	 */
 	
 	@InjectMocks
-	private UserService userService;
+	private UserServiceImpl userService;
 	
 	@Mock
 	private UserRepository userRepo;

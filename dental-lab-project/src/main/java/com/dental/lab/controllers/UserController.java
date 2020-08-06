@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.dental.lab.model.entities.User;
 import com.dental.lab.model.payloads.RegisterUserPayload;
 import com.dental.lab.services.UserService;
 
@@ -30,8 +29,7 @@ public class UserController {
 	public ModelAndView registerUser(ModelMap model,
 			@Valid @ModelAttribute RegisterUserPayload userPayload) {
 		
-		User newUser = userPayload.buildUser();
-		userService.registerUser(newUser);
+		userService.registerUserPayload(userPayload);
 		
 		return new ModelAndView("/home");
 		
