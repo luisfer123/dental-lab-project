@@ -1,5 +1,6 @@
 package com.dental.lab.model.entities;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -61,7 +62,7 @@ public class User {
 			name = "user_has_authorities",
 			joinColumns = @JoinColumn(name = "user_id"),
 			inverseJoinColumns = @JoinColumn(name = "authorities_id"))
-	public Set<Authority> authorities;
+	private Set<Authority> authorities = new HashSet<Authority>();
 	
 	public User() {
 		super();
