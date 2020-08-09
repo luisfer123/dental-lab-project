@@ -41,17 +41,5 @@ public class UserControllerUnitTest {
 					.with(csrf()))
 				.andExpect(status().isOk());
 	}
-	
-	@Test()
-	public void resgisterUserTest_WithRongConfirmPassword() throws Exception {
-		
-		mockMvc.perform(post("/users/register")
-				.param("username", "admin")
-				.param("email", "sommemail@gmail.com")
-				.param("password", "password")
-				.param("confirmPassword", "pasword")
-				.with(csrf()))
-			.andExpect(status().isOk());
-	}
 
 }

@@ -17,7 +17,7 @@
 		<ul class="navbar-nav">
 			<sec:authorize access="hasRole('ADMIN')">
 				<li class="nav-item active">
-					<a class="nav-link" href="<c:url value="#" />">Administrar<span class="sr-only">(current)</span></a>
+					<a class="nav-link" href="<c:url value="/admin" />">Administrar<span class="sr-only">(current)</span></a>
 				</li>
 			</sec:authorize>
 			<sec:authorize access="hasRole('USER')">

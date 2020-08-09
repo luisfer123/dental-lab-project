@@ -5,6 +5,10 @@ import java.util.Set;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dental.lab.exceptions.InvalidPageException;
 import com.dental.lab.model.entities.Authority;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
@@ -105,6 +110,7 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@Transactional
 	public User registerUserPayload(RegisterUserPayload userPayload) {
 		User newUser = userPayload.buildUser();
@@ -121,6 +127,25 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public boolean existsByEmail(String username) {
 		return userRepo.existsByEmail(username);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public Page<User> findAllPaginated(
+			int pageNumber, int pageSize, String orderBy) 
+		throws InvalidPageException {
+		
+		Pageable requestedPage = 
+				PageRequest.of(pageNumber, pageSize, Sort.by(orderBy));
+		Page<User> usersPage = userRepo.findAll(requestedPage);
+		
+		if(!usersPage.hasContent())
+			throw new InvalidPageException();
+		
+		return usersPage;
 	}
 
 }

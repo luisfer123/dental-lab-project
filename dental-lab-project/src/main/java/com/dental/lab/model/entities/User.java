@@ -52,6 +52,9 @@ public class User {
 	@Column(name = "second_last_name")
 	private String secondLastName;
 	
+	@Column(name = "enabled", columnDefinition = "TINYINT(1)")
+	private boolean enabled;
+	
 	@Lob
 	@Column(name = "profile_picture")
 	@Basic(fetch = FetchType.EAGER)
@@ -166,6 +169,18 @@ public class User {
 
 	public void setAuthorities(Set<Authority> authorities) {
 		this.authorities = authorities;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void enable() {
+		this.enabled = true;
+	}
+	
+	public void disable() {
+		this.enabled = false;
 	}
 
 	@Override
