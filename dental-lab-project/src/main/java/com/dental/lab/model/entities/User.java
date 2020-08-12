@@ -22,6 +22,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -60,6 +62,11 @@ public class User {
 	@Basic(fetch = FetchType.EAGER)
 	private byte[] profilePicture;
 	
+	/*
+	 * When it is needed to send authorities collection to the front end,
+	 * ViewUserPayload class should be used instead.
+	 */
+	@JsonIgnore
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(
 			name = "user_has_authorities",

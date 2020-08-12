@@ -1,14 +1,20 @@
 package com.dental.lab.services.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dental.lab.exceptions.InvalidPageException;
+import com.dental.lab.exceptions.UserNotFoundException;
 import com.dental.lab.model.entities.Authority;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
@@ -39,6 +46,33 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder encoder;
+	
+	@Autowired
+	private ResourceLoader resourceLoader;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public User findById(Long userId) throws UserNotFoundException {
+		return userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User entity with id: " + userId + " was not found!"));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public User findByIdWithAuthorities(Long userId) throws UserNotFoundException {
+		User user = findById(userId);
+		Set<Authority> authorities = 
+				authRepo.findUserAuthoritiesByUsername(user.getUsername());
+		user.setAuthorities(authorities);
+		
+		return user;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -66,6 +100,27 @@ public class UserServiceImpl implements UserService {
 		user.setAuthorities(authorities);
 		
 		return user;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<User> searchByUsernameLike(String searchKeyword) {
+		Set<User> users = userRepo.searchByUsernameLike(searchKeyword);
+		return users;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<User> searchByEmailLike(String searchKeyword) {
+		Set<User> users = userRepo.searchByEmailLike(searchKeyword);
+		return users;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<User> searchByNameLike(String searchKeyword) {
+		Set<User> users = userRepo.searchByNameLike(searchKeyword);
+		return users;
 	}
 
 	/**
@@ -134,6 +189,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN')")
 	public Page<User> findAllPaginated(
 			int pageNumber, int pageSize, String orderBy) 
 		throws InvalidPageException {
@@ -146,6 +202,82 @@ public class UserServiceImpl implements UserService {
 			throw new InvalidPageException();
 		
 		return usersPage;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public User addDefaultUserProfilePictureIfneeded(User user) {
+		
+		if(user.getProfilePicture() != null && user.getProfilePicture().length > 0)
+			return user;
+		
+		byte[] picture = null;
+		try {
+			Resource pictureResource =
+					resourceLoader.getResource("classpath:static/images/No-Photo-Placeholder.png");
+			picture = Files.readAllBytes(Paths.get(pictureResource.getURI()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		user.setProfilePicture(picture);
+		
+		return user;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN') or principal.id == #userId")
+	public User updateUserInfo(Long userId, String username, String firstName, 
+			String firstLastName, String secondLastName, String email) throws UserNotFoundException {
+		
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " was not found"));
+		if(username != null)
+			user.setUsername(username);
+		if(firstName != null)
+			user.setFirstName(firstName);
+		if(firstLastName != null)
+			user.setFirstLastName(firstLastName);
+		if(secondLastName != null)
+			user.setSecondLastName(secondLastName);
+		if(email != null)
+			user.setEmail(email);
+		
+		return userRepo.save(user);
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN') or principal.id == #userId")
+	public User updateProfilePicture(byte[] newProfilePicture, Long userId)
+			throws UserNotFoundException{
+		
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with id " + userId + " was not found!"));
+		user.setProfilePicture(newProfilePicture);
+		
+		return userRepo.save(user);
+	}
+	
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	public User adminChangePassword(Long userId, String newPassword)
+				throws UserNotFoundException {
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " was not found"));
+		
+		user.setPassword(encoder.encode(newPassword));
+		return userRepo.save(user);
 	}
 
 }

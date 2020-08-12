@@ -42,5 +42,5 @@ public class AuthorityRepositoryTest {
 				.containsOnly(
 						EAuthority.ROLE_USER);
 	}
-
+	
 }

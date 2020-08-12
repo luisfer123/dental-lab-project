@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -47,7 +46,7 @@ public class AdminUsersControllerTest {
 	@WithMockUser(username = "admin", authorities = {"ROLE_ADMIN"})
 	public void goUsersListTest() throws Exception {
 		
-		User testUser1 = 
+		User testUser1 =
 				new User("testUser1", "testUser1@mail.com", "password");
 		User testUser2 = 
 				new User("testUser2", "testUser2@mail.com", "password");
@@ -81,6 +80,7 @@ public class AdminUsersControllerTest {
 							hasProperty("password", is("password"))
 							)
 					)));
+		
 	}
 
 }

@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ import com.dental.lab.security.CustomUserDetails;
 @Import(WebSecurityConfig.class)
 public class UserServiceIntegrationTest {
 	
+
 	@Autowired
 	private UserService userService;
 	
@@ -37,14 +39,16 @@ public class UserServiceIntegrationTest {
 	private PasswordEncoder encoder;
 	
 	private User testUser1;
-	private final String usernameTestUser1 = "Test_user_1";
+	private static final String usernameTestUser1 = "Test_user_1";
+	private static final String passwordTestUser1 = "password";
+	private static final String emailTestUser1 = "testuser1@mail.com";
 	
 	@BeforeEach
 	public void setup() {
 		testUser1 = new User();
 		testUser1.setUsername(usernameTestUser1);
-		testUser1.setPassword("password");
-		testUser1.setEmail("testuser1@mail.com");
+		testUser1.setPassword(passwordTestUser1);
+		testUser1.setEmail(emailTestUser1);
 		
 	}
 	
@@ -87,7 +91,7 @@ public class UserServiceIntegrationTest {
 		
 		assertNotNull(userSaved.getId());
 		assertEquals(usernameTestUser1, userSaved.getUsername());
-		assertTrue(encoder.matches("password", userSaved.getPassword()));
+		assertTrue(encoder.matches(passwordTestUser1, userSaved.getPassword()));
 		assertThat(userSaved.getAuthorities())
 			.extracting("authority")
 			.containsOnly(EAuthority.ROLE_USER);
@@ -100,7 +104,7 @@ public class UserServiceIntegrationTest {
 		
 		assertNotNull(userRegistered.getId());
 		assertEquals(usernameTestUser1, userRegistered.getUsername());
-		assertTrue(encoder.matches("password", userRegistered.getPassword()));
+		assertTrue(encoder.matches(passwordTestUser1, userRegistered.getPassword()));
 		assertThat(userRegistered.getAuthorities())
 			.extracting("authority")
 			.containsOnly(EAuthority.ROLE_USER);
@@ -108,6 +112,39 @@ public class UserServiceIntegrationTest {
 				.getContext().getAuthentication().isAuthenticated());
 		assertEquals(usernameTestUser1, ((CustomUserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal()).getUsername());
+	}
+	
+	@Test
+	@Transactional
+	@WithMockUser(username = "admin", authorities = {"ROLE_ADMIN"})
+	public void updateUserInfoTest() {
+		
+		User savedUser = userService.saveUser(testUser1);
+		User userUpdated = userService.updateUserInfo(
+				savedUser.getId(), "newUsername", testUser1.getFirstName(), 
+				testUser1.getFirstLastName(), testUser1.getSecondLastName(), 
+				testUser1.getEmail());
+		
+		assertNotNull(userUpdated);
+		assertEquals("newUsername", userUpdated.getUsername());
+		assertEquals(emailTestUser1, userUpdated.getEmail());
+		
+	}
+	
+	@Test
+	@Transactional
+	@WithMockUser(username = "admin", authorities = {"ROLE_ADMIN"})
+	public void changePasswordTest() {
+		
+		String newPassword = "newPassword";
+		
+		User savedUser = userService.saveUser(testUser1);
+		assertTrue(encoder.matches(passwordTestUser1, savedUser.getPassword()));
+		
+		User updatedUser = 
+				userService.adminChangePassword(savedUser.getId(), newPassword);
+		assertTrue(encoder.matches(newPassword, updatedUser.getPassword()));
+		
 	}
 	
 	
@@ -142,7 +179,7 @@ public class UserServiceIntegrationTest {
 			
 			assertNotNull(userRegistered.getId());
 			assertEquals(testPayloadUsername, userRegistered.getUsername());
-			assertTrue(encoder.matches("password", userRegistered.getPassword()));
+			assertTrue(encoder.matches(testPayloadRawPassword, userRegistered.getPassword()));
 			assertThat(userRegistered.getAuthorities())
 				.extracting("authority")
 				.containsOnly(EAuthority.ROLE_USER);
