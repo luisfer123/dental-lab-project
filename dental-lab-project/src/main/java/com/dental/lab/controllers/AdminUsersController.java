@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.dental.lab.exceptions.ImageNotValidException;
 import com.dental.lab.model.entities.User;
+import com.dental.lab.model.enums.EAuthority;
 import com.dental.lab.model.payloads.AdminChangePasswordPayload;
 import com.dental.lab.model.payloads.ViewEditUserPayload;
 import com.dental.lab.services.UserService;
@@ -133,6 +134,39 @@ public class AdminUsersController {
 		
 		userService.adminChangePassword(
 				userId, changePasswordPayload.getNewPassword());
+		
+		return new ModelAndView("redirect:/admin/users/edit?user_id=" + userId);
+	}
+	
+	@RequestMapping(path = "/{userId}/delete_role", method = RequestMethod.POST)
+	public ModelAndView deleteAuthority(
+			@RequestParam("authorityToDelete") EAuthority authorityToDelete,
+			@PathVariable("userId") Long userId) {
+								
+		switch(authorityToDelete) {
+		case ROLE_ADMIN:
+			userService.deleteUserAuthority(userId, EAuthority.ROLE_ADMIN);
+			break;
+		case ROLE_CLIENT:
+			userService.deleteUserAuthority(userId, EAuthority.ROLE_CLIENT);
+			break;
+		case ROLE_TECHNICIAN:
+			userService.deleteUserAuthority(userId, EAuthority.ROLE_TECHNICIAN);
+			break;
+		default:
+			break;
+		}
+		
+		return new ModelAndView("redirect:/admin/users/edit?user_id=" + userId);
+		
+	}
+	
+	@RequestMapping(path = "/{userId}/add_role", method = RequestMethod.POST)
+	public ModelAndView addAuthority(ModelMap model,
+			@RequestParam("authorityToAdd") EAuthority authorityToAdd,
+			@PathVariable("userId") Long userId) {
+		
+		userService.addUserAuthority(userId, authorityToAdd);
 		
 		return new ModelAndView("redirect:/admin/users/edit?user_id=" + userId);
 	}

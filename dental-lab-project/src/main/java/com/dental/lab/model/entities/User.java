@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -73,6 +74,12 @@ public class User {
 			joinColumns = @JoinColumn(name = "user_id"),
 			inverseJoinColumns = @JoinColumn(name = "authorities_id"))
 	private Set<Authority> authorities = new HashSet<Authority>();
+	
+	@OneToOne(
+			mappedBy = "user",
+			cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY)
+	private Dentist dentist;
 	
 	public User() {
 		super();
@@ -188,6 +195,14 @@ public class User {
 	
 	public void disable() {
 		this.enabled = false;
+	}
+
+	public Dentist getDentist() {
+		return dentist;
+	}
+
+	public void setDentist(Dentist dentist) {
+		this.dentist = dentist;
 	}
 
 	@Override

@@ -22,7 +22,7 @@
 			</sec:authorize>
 			<sec:authorize access="hasRole('USER')">
 				<li class="nav-item">
-					<a class="nav-link" href="<c:url value="#" />">Productos</a>
+					<a class="nav-link" href="<c:url value="/products/category-list" />">Productos</a> 	
 				</li>
 			</sec:authorize>
 			<li class="nav-item">

@@ -9,10 +9,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.dental.lab.exceptions.AuthorityNotFoundException;
 import com.dental.lab.exceptions.InvalidPageException;
 import com.dental.lab.exceptions.UserNotFoundException;
 import com.dental.lab.model.entities.Authority;
+import com.dental.lab.model.entities.Dentist;
 import com.dental.lab.model.entities.User;
+import com.dental.lab.model.enums.EAuthority;
 import com.dental.lab.model.payloads.RegisterUserPayload;
 
 public interface UserService {
@@ -168,6 +171,48 @@ public interface UserService {
 	 */
 	User updateProfilePicture(byte[] newProfilePicture, Long userId) throws UserNotFoundException;
 	
+	/**
+	 * Change the password of a given user. New password is encoded as any other
+	 * password before being saved. Knowing the current password is not necessary
+	 * to change it, so, this method is meant to be used by administrators only.
+	 * 
+	 * @param userId Id of the {@linkplain User} we want to change the password to
+	 * @param newPassword Raw new password which will be encrypted and saved
+	 * @return {@linkplain User} entity with id {@code userId} and new password set
+	 * @throws UserNotFoundException If no {@linkplain User} with id {@code userId}
+	 * 			is found
+	 */
 	User adminChangePassword(Long userId, String newPassword) throws UserNotFoundException;
+	
+	/**
+	 * Deletes the {@linkplain Authority}, passed as argument, from the {@linkplain User} 
+	 * with id {@code userId}.
+	 * When deleting {@code ROLE_DENTIST} authority, the corresponding {@linkplain Dentist}
+	 * entity is not deleted and its relationship with the corresponding {@linkplain User}
+	 * entity is preserved.
+	 * 
+	 * @param userId Id of the {@linkplain User} we want to delete the authority from
+	 * @param authority authority to be deleted. It cannot be {@code ROLE_USER} authority
+	 * @return {@linkplain User} with the authority deleted
+	 * @throws UserNotFoundException If no {@linkplain User} with id {@code userId}
+	 * 			is found
+	 * @throws AuthorityNotFoundException If no {@linkplain Authority} called as the
+	 * 			value of {@code authority} parameter is found
+	 */
+	User deleteUserAuthority(Long userId, EAuthority authority) throws UserNotFoundException, AuthorityNotFoundException;
+	
+	/**
+	 * Adds the {@linkplain Authority}, passed as argument, to the {@linkplain User} 
+	 * with id {@code userId}.
+	 * 
+	 * @param userId Id of the {@linkplain User} we want to add the authority to
+	 * @param authority authority authority to be added.
+	 * @return {@linkplain User} with the authority added
+	 * @throws UserNotFoundException UserNotFoundException If no {@linkplain User} with id {@code userId}
+	 * 			is found
+	 * @throws AuthorityNotFoundException AuthorityNotFoundException If no {@linkplain Authority} called as the
+	 * 			value of {@code authority} parameter is found
+	 */
+	User addUserAuthority(Long userId, EAuthority authority) throws UserNotFoundException, AuthorityNotFoundException;
 
 }

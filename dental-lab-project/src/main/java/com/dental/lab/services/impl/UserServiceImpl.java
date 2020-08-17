@@ -23,13 +23,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dental.lab.exceptions.AuthorityNotFoundException;
 import com.dental.lab.exceptions.InvalidPageException;
 import com.dental.lab.exceptions.UserNotFoundException;
 import com.dental.lab.model.entities.Authority;
+import com.dental.lab.model.entities.Dentist;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
 import com.dental.lab.model.payloads.RegisterUserPayload;
 import com.dental.lab.repositories.AuthorityRepository;
+import com.dental.lab.repositories.DentistRepository;
 import com.dental.lab.repositories.UserRepository;
 import com.dental.lab.security.CustomUserDetails;
 import com.dental.lab.services.UserService;
@@ -43,6 +46,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private AuthorityRepository authRepo;
+	
+	@Autowired
+	private DentistRepository dentistRepo;
 	
 	@Autowired
 	private PasswordEncoder encoder;
@@ -269,6 +275,10 @@ public class UserServiceImpl implements UserService {
 		return userRepo.save(user);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	@Transactional
 	@PreAuthorize(value = "hasRole('ADMIN')")
 	public User adminChangePassword(Long userId, String newPassword)
@@ -278,6 +288,65 @@ public class UserServiceImpl implements UserService {
 		
 		user.setPassword(encoder.encode(newPassword));
 		return userRepo.save(user);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	public User deleteUserAuthority(Long userId, EAuthority authority)
+			throws UserNotFoundException, AuthorityNotFoundException {
+		
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " was not found!"));
+		
+		if(user.getUsername().equals("admin")) {
+			throw new RuntimeException();
+		}
+		
+		Authority auth = authRepo.findByAuthority(authority)
+				.orElseThrow(() -> new AuthorityNotFoundException("Authority: " + authority + " was not found"));
+		
+		user.getAuthorities().remove(auth);
+				
+		return userRepo.save(user);
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	public User addUserAuthority(Long userId, EAuthority authority)
+			throws UserNotFoundException, AuthorityNotFoundException {
+		
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " was not found!"));
+		
+		Authority auth = authRepo.findByAuthority(authority)
+				.orElseThrow(() -> new AuthorityNotFoundException("Authority: " + authority + " was not found"));
+		
+		switch(authority) {
+		case ROLE_CLIENT:
+			if(!dentistRepo.existsByUserId(userId)) {
+				Dentist dentist = new Dentist();
+				dentist.setUser(user);
+				user.setDentist(dentist);
+			}
+			break;
+		case ROLE_TECHNICIAN:
+			break;
+		default:
+			break;
+		}
+		
+		user.getAuthorities().add(auth);
+		return userRepo.save(user);
+		
 	}
 
 }
