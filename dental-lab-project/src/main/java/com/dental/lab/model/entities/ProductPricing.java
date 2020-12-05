@@ -49,7 +49,6 @@ public class ProductPricing {
 		this.price = price;
 		// TODO: get right date
 		Instant now = Instant.now();
-		System.out.println(now.toString());
 		this.startingDate = Timestamp.from(now);
 	}
 

@@ -38,7 +38,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${products }" var="product">
+							<c:forEach items="${productsPage.content }" var="product">
 								<tr>
 									<th scope="row">${product.name }</th>
 									<td><a href="<c:url value="/admin/products/${product.id }/edit" />" class="btn btn-secondary">Editar</a></td>

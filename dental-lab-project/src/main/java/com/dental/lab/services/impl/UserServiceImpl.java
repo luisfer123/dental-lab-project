@@ -128,6 +128,19 @@ public class UserServiceImpl implements UserService {
 		Set<User> users = userRepo.searchByNameLike(searchKeyword);
 		return users;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	public User saveUserWithAuthorities(User newUser) 
+			throws EntityNotFoundException {
+		
+		//TODO: Add logic.
+		return null;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -138,7 +151,7 @@ public class UserServiceImpl implements UserService {
 		
 		Authority userAuth = authRepo.findByAuthority(EAuthority.ROLE_USER)
 				.orElseThrow(() -> new EntityNotFoundException("Authority " + EAuthority.ROLE_USER.toString() + " was not found!"));
-		
+				
 		newUser.addAuthority(userAuth);
 		newUser.setPassword(encoder.encode(newUser.getPassword()));
 		
@@ -159,7 +172,7 @@ public class UserServiceImpl implements UserService {
 		
 		Authentication auth = 
 				new UsernamePasswordAuthenticationToken(
-						userDetails, 
+						userDetails,
 						savedUser.getPassword(), 
 						userDetails.getAuthorities());
 		
@@ -186,8 +199,8 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public boolean existsByEmail(String username) {
-		return userRepo.existsByEmail(username);
+	public boolean existsByEmail(String email) {
+		return userRepo.existsByEmail(email);
 	}
 	
 	/**

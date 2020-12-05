@@ -1,5 +1,7 @@
 package com.dental.lab.controllers;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -65,16 +67,53 @@ public class ProductController {
 		ProductCategory category = categoryService.findById(categoryId);
 		Set<Product> products = 
 				productService.findByCategoryId(categoryId);
-		Set<ProductPayload> productsPayload =
+		Set<ProductPayload> productsPayloadSet =
 				productService.createProductPayload(products);
 		List<ProductCategory> categoryPath =
 				productService.buildCategoryPath(category);
+		
+		List<ProductPayload> productsPayload = 
+				new ArrayList<ProductPayload>(productsPayloadSet);
+		productsPayload.sort(Comparator.comparing(ProductPayload::getName));
 		
 		model.addAttribute("category", category);
 		model.addAttribute("products", productsPayload);
 		model.addAttribute("categoryPath", categoryPath);
 		
 		return new ModelAndView("/products/product-category-list");
+	}
+	
+	/**
+	 * Used to show in the view one specific {@linkplain Product} with all
+	 * its attributes {@linkplain ProductPayload}s are sorted by their names
+	 * 
+	 * @param model Spring's {@linkplain ModelMap }
+	 * @param productId The id of the {@linkplain Product } entity to be retrieve
+	 * @return {@linkplain ModelAndView } object containing: <br /> 
+	 * 			- {@code product}: An instance of {@linkplain ProductPayload } class representing
+	 * 			the {@linkplain Product} object with id {@code productId} <br />
+	 * 			- {@code productCategoriesPath}: A {@code List} of {@linkplain ProductCategory}
+	 * 			objects containing all the {@code ProductCategy} objects related with the
+	 * 			{@code Product} with id {@code productId }. {@code ProductCategory} are ordered
+	 * 			by parent first than child.
+	 */
+	@RequestMapping(path = "/{productId}/details")
+	public ModelAndView goProductDetails(ModelMap model,
+			@PathVariable("productId") Long productId) {
+		
+		Product product = productService.findById(productId);
+		ProductPayload productPayload = new ProductPayload(product, 
+				productService.findCurrentPriceByProductId(productId).getPrice());
+		List<ProductCategory> productCategoriesPath = 
+				productService.buildProductCategoryPath(product);
+		
+		model.addAttribute("product", productPayload);
+		model.addAttribute("productCategoriesPath", productCategoriesPath);
+		
+		productCategoriesPath.stream()
+			.forEach(category -> System.out.println(category.getName() + " depth: " + category.getDepth()));
+		
+		return new ModelAndView("products/product-details", model);
 	}
 
 }

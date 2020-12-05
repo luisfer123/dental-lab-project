@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dental.lab.services.UserService;
 
-public class UniqueUsernameValidator 
-		implements ConstraintValidator<UniqueUsername, String> {
+public class UniqueEmailValidator
+		implements ConstraintValidator<UniqueEmail, String> {
 	
 	@Autowired
 	private UserService userService;
@@ -19,8 +19,8 @@ public class UniqueUsernameValidator
 		if(userService == null)
 			return true;
 		
-		return value != null && 
-				!userService.existsByUsername(value);
+		return value != null &&
+				!userService.existsByEmail(value);
 	}
 
 }

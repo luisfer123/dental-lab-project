@@ -14,7 +14,4 @@
 	<li class="nav-item">
 		<a class="nav-link" href="<c:url value="/admin/products/panel" />">Productos</a>
 	</li>
-	<li class="nav-item">
-		<a class="nav-link disabled" href="#">Disabled</a>
-	</li>
 </ul>

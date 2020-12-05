@@ -8,15 +8,16 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UniqueUsernameValidator.class)
-public @interface UniqueUsername {
+@Constraint(validatedBy = UniqueEmailValidator.class)
+public @interface UniqueEmail {
+	
+	public String message() default "Email allready in used!";
 
-	public String message() default "Username allready in used!";
-	
 	public Class<?>[] groups() default {};
-	
+
 	public Class<? extends Payload>[] payload() default {};
-	
+
 }

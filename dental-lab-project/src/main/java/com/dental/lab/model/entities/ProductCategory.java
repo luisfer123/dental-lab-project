@@ -16,6 +16,21 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+/**
+ * Only one {@linkplain ProductCategory} can be assign to a {@linkplain Product}
+ * at a time; thought, once one {@linkplain ProductCategory} is assigned, the
+ * parent {@linkplain ProductCategory} and the parent of the parent, and so on...
+ * are associated with the {@linkplain Product} as well. So once one 
+ * {@linkplain ProductCategory} is assigned, so are all its predecessors in the
+ * category tree. All {@linkplain ProductCategory}s associated with one 
+ * {@linkplain Product} must belong to a single pat in the {@linkplain ProductCategory} 
+ * tree.
+ * 
+ * @author Luis Fernando Martinez Oritz
+ *
+ */
 @Entity
 @Table(name = "product_category")
 public class ProductCategory {
@@ -31,15 +46,18 @@ public class ProductCategory {
 	@Column(name = "depth")
 	private int depth;
 	
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "parent_id")
 	private ProductCategory parent;
 	
+	@JsonIgnore
 	@OneToMany(
 			mappedBy = "parent",
 			fetch = FetchType.EAGER)
 	private Set<ProductCategory> children;
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy = "categories")
 	private Set<Product> products;
 

@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -43,6 +44,21 @@ public class Product {
 			joinColumns = @JoinColumn(name = "product_id"),
 			inverseJoinColumns = @JoinColumn(name = "product_category_id"))
 	private Set<ProductCategory> categories;
+	
+	@OneToMany(mappedBy = "product")
+	private Set<ProductPricing> productPricings;
+	
+	public void addCategory(ProductCategory category) {
+		categories.add(category);
+		category.getProducts().add(this);
+	}
+	
+	public void removeCategory(ProductCategory category) {
+		categories.remove(category);
+		category.getProducts().remove(this);
+	}
+	
+	/* ============================ Getters and Setters =============================== */
 
 	public Long getId() {
 		return id;
@@ -90,6 +106,14 @@ public class Product {
 
 	public void setProductImage(byte[] productImage) {
 		this.productImage = productImage;
+	}
+
+	public Set<ProductPricing> getProductPricings() {
+		return productPricings;
+	}
+
+	public void setProductPricings(Set<ProductPricing> productPricings) {
+		this.productPricings = productPricings;
 	}
 
 	@Override

@@ -5,15 +5,15 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-	<nav aria-label="breadcrumb">
-		<ol class="breadcrumb">
-			<c:forEach items="${categoryPath }" var="category">
-				<li class="breadcrumb-item active" aria-current="page">
-					<a href="<c:url value="/products/${category.id }/list" />">${category.name }</a>				
-				</li>
-			</c:forEach>
-		</ol>
-	</nav>
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb">
+		<c:forEach items="${categoryPath }" var="category">
+			<li class="breadcrumb-item active" aria-current="page">
+				<a href="<c:url value="/products/${category.id }/list" />">${category.name }</a>				
+			</li>
+		</c:forEach>
+	</ol>
+</nav>
 
 <c:if test="${!empty category.children }">
 	<ul class="nav flex-column mt-3 py-5 border round custom-background">

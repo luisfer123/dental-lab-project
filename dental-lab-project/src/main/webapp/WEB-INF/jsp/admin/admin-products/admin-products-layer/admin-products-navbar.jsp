@@ -5,7 +5,7 @@
 
 <ul class="nav border round justify-content-center mt-3 custom-background">
 	<li class="nav-item">
-		<a class="nav-link active" href="<c:url value="/admin/products/products-list" />">Lista de productos</a>
+		<a class="nav-link active" href="<c:url value="/admin/products/list" />">Lista de productos</a>
 	</li>
 	<li class="nav-item">
 		<a class="nav-link" href="#">Agregar producto</a>

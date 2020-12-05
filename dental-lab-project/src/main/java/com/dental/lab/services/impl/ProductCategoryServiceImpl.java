@@ -1,5 +1,7 @@
 package com.dental.lab.services.impl;
 
+import java.util.Set;
+
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dental.lab.exceptions.ProductCategoryNotFoundException;
+import com.dental.lab.model.entities.Product;
 import com.dental.lab.model.entities.ProductCategory;
 import com.dental.lab.repositories.ProductCategoryRepository;
 import com.dental.lab.services.ProductCategoryService;
@@ -29,6 +32,12 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 	public ProductCategory findRootCategory() {
 		return categoryRepo.findRootCategory()
 				.orElseThrow(() -> new EntityNotFoundException("Root CategoryProduct was not found"));
+	}
+	
+	@Transactional(readOnly = true)
+	public Set<ProductCategory> findByProduct(Product product) {
+		
+		return categoryRepo.findProductCategoriesByProductId(product.getId());
 	}
 
 }

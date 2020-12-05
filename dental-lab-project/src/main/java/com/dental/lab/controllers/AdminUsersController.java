@@ -22,6 +22,7 @@ import com.dental.lab.exceptions.ImageNotValidException;
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.enums.EAuthority;
 import com.dental.lab.model.payloads.AdminChangePasswordPayload;
+import com.dental.lab.model.payloads.RegisterUserPayload;
 import com.dental.lab.model.payloads.ViewEditUserPayload;
 import com.dental.lab.services.UserService;
 
@@ -169,6 +170,24 @@ public class AdminUsersController {
 		userService.addUserAuthority(userId, authorityToAdd);
 		
 		return new ModelAndView("redirect:/admin/users/edit?user_id=" + userId);
+	}
+	
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	@RequestMapping(path = "/add", method = RequestMethod.GET)
+	public ModelAndView goAddUser() {
+		return new ModelAndView("admin/admin-users/add-user");
+	}
+	
+	@PreAuthorize(value = "hasRole('ADMIN')")
+	@RequestMapping(path = "/add", method = RequestMethod.POST)
+	public ModelAndView addUser(
+			@Valid @ModelAttribute RegisterUserPayload userPayload,
+			ModelMap model) {
+		
+		User user = userPayload.buildUser();	
+		user = userService.saveUser(user);
+		
+		return new ModelAndView("redirect:/admin/users/edit?user_id=" + user.getId());
 	}
 
 }

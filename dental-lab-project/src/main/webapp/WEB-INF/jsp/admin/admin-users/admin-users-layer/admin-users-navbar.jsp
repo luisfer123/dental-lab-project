@@ -11,9 +11,7 @@
 		<a class="nav-link" href="<c:url value="/admin/users/edit" />">Editar usuario</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link" href="#">Agregar usuario</a>
-	</li>
-	<li class="nav-item"><a class="nav-link disabled" href="#">Disabled</a>
+		<a class="nav-link" href="<c:url value="/admin/users/add" />">Agregar usuario</a>
 	</li>
 	
 </ul>

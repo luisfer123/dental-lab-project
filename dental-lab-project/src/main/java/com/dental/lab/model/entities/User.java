@@ -23,6 +23,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.dental.lab.model.validation.UniqueEmail;
+import com.dental.lab.model.validation.UniqueUsername;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -35,11 +37,13 @@ public class User {
 	private Long id;
 	
 	@NotEmpty()
+	@UniqueUsername
 	@Column(name = "username", nullable = false, unique = true)
 	private String username;
 	
 	@Email
 	@NotNull
+	@UniqueEmail
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 	

@@ -1,6 +1,9 @@
 package com.dental.lab.services;
 
+import java.util.Set;
+
 import com.dental.lab.exceptions.ProductCategoryNotFoundException;
+import com.dental.lab.model.entities.Product;
 import com.dental.lab.model.entities.ProductCategory;
 
 public interface ProductCategoryService {
@@ -16,5 +19,7 @@ public interface ProductCategoryService {
 	ProductCategory findById(Long categoryId) throws ProductCategoryNotFoundException;
 	
 	ProductCategory findRootCategory();
+	
+	Set<ProductCategory> findByProduct(Product product);
 
 }

@@ -10,6 +10,8 @@ import org.hibernate.type.Type;
 
 import com.dental.lab.model.entities.User;
 import com.dental.lab.model.validation.FieldMatch;
+import com.dental.lab.model.validation.UniqueEmail;
+import com.dental.lab.model.validation.UniqueUsername;
 
 @GroupSequence({
 	Type.class, 
@@ -24,6 +26,7 @@ import com.dental.lab.model.validation.FieldMatch;
 public class RegisterUserPayload {
 	
 	@NotBlank
+	@UniqueUsername
 	private String username;
 	
 	@NotBlank
@@ -33,6 +36,7 @@ public class RegisterUserPayload {
 	
 	@Email
 	@NotBlank
+	@UniqueEmail
 	private String email;
 	
 	private String firstName;

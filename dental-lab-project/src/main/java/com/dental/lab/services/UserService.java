@@ -81,12 +81,25 @@ public interface UserService {
 	Page<User> findAllPaginated(int pageNumber, int pageSize, String sortBy) throws InvalidPageException;
 	
 	/**
+	 * Intended to be used only by administrators. It saves a new {@linkplain User} in the database, 
+	 * but it can be saved with any subset of the available (security) authorities.
+	 * {@link #saveUser(User)} method also saves a new {@linkplain User} in the database
+	 * but it only adds the default {@code ROLE_USER} authority to the new {@linkplain User}</code>
+	 * 
+	 * @param newUser {@linkplain User} to be saved.
+	 * @return {@linkplain User} entity that was just saved. It now contains JPA id
+	 * @throws EntityNotFoundException If the {@linkplain Authority} with {@code authority}
+	 * 			field equals to {@code ROLE_USER} is not found.
+	 */
+	User saveUserWithAuthorities(User newUser) throws EntityNotFoundException;
+	
+	/**
 	 * Saves the given {@code User} in the database. Before saving it, {@code password} field
 	 * is encoded and {@code ROLE_USER} role is added to {@code User.authorities}
 	 * collection. 
 	 * 
 	 * @param newUser {@linkplain User} to be saved.
-	 * @return {@linkplain User} entity that was just saved
+	 * @return {@linkplain User} entity that was just saved. It now contains JPA id
 	 * @throws EntityNotFoundException If the {@linkplain Authority} with {@code authority}
 	 * 			field equals to {@code ROLE_USER} is not found.
 	 */
